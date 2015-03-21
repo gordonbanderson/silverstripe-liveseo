@@ -64,11 +64,39 @@ class SeoSiteTreeExtension extends SiteTreeExtension {
 		$jsvars = array(
 			"TitleTemplate" => $TitleTemplate,
 		);
-		Requirements::javascriptTemplate(SEO_DIR.'/javascript/seo.js', $jsvars);
 
 		// better do this below in some init method? :
-//		$this->getSEOScoreCalculation();
-//		$this->setSEOScoreTipsUL();
+		//		$this->getSEOScoreCalculation();
+		//		$this->setSEOScoreTipsUL();
+
+		// check if the page being checked provides images and links information
+		$providedInfoFIeld = null;
+
+		$class = new ReflectionClass($this->owner);
+		if ($class->implementsInterface('SeoInformationProvider')) {
+			$links = $this->owner->getLinksForSeo();
+			$images = $this->owner->getImagesForSeo();
+
+			// if we have images or links add an extra div containing info in data attributes
+			$info = array();
+			if (sizeof($links) > 0) {
+				$info['data-has-links'] = true;
+			}
+			if (sizeof($images) > 0) {
+				$info['data-has-images'] = true;
+			}
+
+			if (sizeof($info) > 0) {
+				$html = '<div id="providedInfo" ';
+				foreach ($info as $key => $val) {
+					$html .= $key.'='.$val;
+				}
+				$html .= ">INFO HERE</div>";
+				$providedInfoFIeld = new LiteralField('ProvidedSEOInfo', $html);
+			}
+		}
+
+		Requirements::javascriptTemplate(SEO_DIR.'/javascript/seo.js', $jsvars);
 
 		// lets create a new tab on top
 		$fields->addFieldsToTab('Root.SEO', array(
@@ -89,6 +117,10 @@ class SeoSiteTreeExtension extends SiteTreeExtension {
 		$fields->findOrMakeTab('Root.SEO.Options.Meta',_t('SEO.SEOMetaData', 'Metadata'));
 		$fields->findOrMakeTab('Root.SEO.Options.Social',_t('SEO.Social', 'Social'));
 		$fields->findOrMakeTab('Root.SEO.Options.Advanced',_t('SEO.Advanced', 'Advanced'));
+
+		if ($providedInfoFIeld) {
+			$fields->addFIeldToTab('Root.SEO', $providedInfoFIeld);
+		}
 
 		// ADD metadata fields
 		$fields->addFieldsToTab('Root.SEO.Options.Meta', array(
@@ -352,7 +384,7 @@ class SeoSiteTreeExtension extends SiteTreeExtension {
 	/**
 	 * getSEOScoreTips.
  	 * Get array of tips translated in current locale
-	 *
+ 	 *
 	 * @param none
 	 * @return array $score_criteria_tips Associative array with translated tips
 	*/
