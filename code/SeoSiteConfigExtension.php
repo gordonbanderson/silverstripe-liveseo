@@ -48,8 +48,13 @@ class SeoSiteConfigExtension extends DataExtension {
 		if($templatetag) { $templatetag = "<br />Current template title tag: ".$templatetag;
 		} else { $templatetag = ""; }
 
+		// FIXME - not sure of the intention of this value, but set it to avoid site config breaking
+		$titlehtml = '';
+
 		$fields->addFieldToTab("Root.Main", $seotitlefield = TextField::create('SEOTitleTemplate')
-				->SetRightTitle("For SEO preview (valid js expression, available vars: page_title, page_menutitle, page_metadata_title), eg:<br /> page_title + ' &raquo; ' + siteconfig_title [OR] (page_metadata_title ? page_metadata_title : page_title)".$titlehtml));
+				->SetRightTitle("For SEO preview (valid js expression, available vars: page_title, page_menutitle, '.
+					'page_metadata_title), eg:<br /> page_title + ' &raquo; ' +
+				siteconfig_title [OR] (page_metadata_title ? page_metadata_title : page_title)".$titlehtml));
 
 		// set default/initial value
 		if(!$this->owner->SEOTitleTemplate){
