@@ -36,12 +36,16 @@ class SeoSiteConfigExtension extends DataExtension {
 		$theme = Config::inst()->get('SSViewer', 'theme');
 		$foundpath  = $loader->findTemplates("main/Page", $theme); // TODO: this is a guess...
 		$path = $foundpath['main'];
-		$templatecode = file_get_contents($path);
-		if(strpos($templatecode, '<title>')){
+		if(file_exists($path)){
+			$templatecode = file_get_contents($path);
+		}
+		if($templatecode && strpos($templatecode, '<title>')){
 			$templatetag = explode('<title>', $templatecode );
 			$templatetag = array_pop( $templatetag );
 			$templatetag = explode('</title>', $templatetag );
 			$templatetag = array_shift( $templatetag );
+		} else {
+			$templatetag = false;
 		}
 //		$template = SSViewer::fromString($titlehtml);
 //		$fulltitle = $template->process($this->owner);
